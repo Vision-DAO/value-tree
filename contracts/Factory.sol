@@ -12,7 +12,7 @@ contract Factory {
 	/* A user created an instance of the Idea contract. */
 	event IdeaCreated(address idea);
 
-	constructor() public {}
+	constructor() {}
 
 	function createIdea(string memory ideaName, string memory ideaTicker, uint256 ideaShares, string memory datumIpfsHash) external {
 		Idea created = new Idea(ideaName, ideaTicker, ideaShares, datumIpfsHash);
