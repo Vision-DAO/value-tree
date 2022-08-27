@@ -9,13 +9,18 @@ pragma solidity ^0.8.11;
  * child contract.
  */
 contract Factory {
+	Idea[] public registry;
+
 	/* A user created an instance of the Idea contract. */
 	event IdeaCreated(address idea);
 
-	constructor() {}
-
+	/**
+	 * Calls the constructor on the Idea contract with the specified arguments
+	 * and registers it in the registry.
+	 */
 	function createIdea(string memory ideaName, string memory ideaTicker, uint256 ideaShares, string memory datumIpfsHash) external {
 		Idea created = new Idea(ideaName, ideaTicker, ideaShares, datumIpfsHash);
+		registry.push(created);
 
 		// Notify listeners, and transfer to msg.sender, because the registry is msg.sender
 		emit IdeaCreated(address(created));
