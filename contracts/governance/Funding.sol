@@ -21,7 +21,7 @@ struct FundingRate {
 
 	/* When the funding expires */
 	uint256 expiry;
-	
+
 	/* Timestamp at which the funds were claimed */
 	uint256 lastClaimed;
 
