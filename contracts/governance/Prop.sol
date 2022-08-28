@@ -44,7 +44,7 @@ contract Prop {
 	uint256 public expiresAt;
 
 	/* A new proposal was created, the details of which are on IPFS */
-	event NewProposal(Idea governed, address toFund, string propIpfsHash, uint256 expiresAt);
+	event NewProposal(Prop prop, Idea governed, address toFund, string propIpfsHash, uint256 expiresAt);
 
 	/**
 	 * Creates a new proposal, whose details should be on IPFS already, and that
@@ -67,7 +67,7 @@ contract Prop {
 		expiresAt = block.timestamp + _expiry * 1 seconds;
 		ipfsAddr = _proposalIpfsHash;
 
-		emit NewProposal(_jurisdiction, _toFund, _proposalIpfsHash, expiresAt);
+		emit NewProposal(this, _jurisdiction, _toFund, _proposalIpfsHash, expiresAt);
 	}
 
 	/**

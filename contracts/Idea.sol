@@ -25,19 +25,19 @@ contract Idea is ERC20 {
 	string public ipfsAddr;
 
 	/* The idea, and its datum have been committed to the blockchain. */
-	event IdeaRecorded(string ipfsAddr);
+	event IdeaRecorded(Idea idea, string ipfsAddr);
 
 	/* A child idea has had a new funds rate finalized. */
-	event IdeaFunded(address from, address to, FundingRate rate);
+	event IdeaFunded(Prop prop, Idea from, address to, FundingRate rate);
 
 	/* A proposal was submitted by a user */
-	event ProposalSubmitted(address governor, address prop);
+	event ProposalSubmitted(Idea governor, Prop prop);
 
 	/* A proposal failed to meet a 51% majority */
-	event ProposalRejected(address governor, address prop);
+	event ProposalRejected(Idea governor, Prop prop);
 
 	/* An instance of a child's funding has been released. */
-	event FundingDispersed(address from, address to, FundingRate rate);
+	event FundingDispersed(Idea from, address to, FundingRate rate);
 
 	// Ensures that the given address is a funded child idea
 	modifier isChild(address child) {
@@ -56,7 +56,7 @@ contract Idea is ERC20 {
 		_mint(msg.sender, ideaShares);
 		ipfsAddr = datumIpfsHash;
 
-		emit IdeaRecorded(datumIpfsHash);
+		emit IdeaRecorded(this, datumIpfsHash);
 	}
 
 	/**
@@ -68,7 +68,7 @@ contract Idea is ERC20 {
 
 		proposals.push(address(proposal));
 		propSubmitted[address(proposal)] = true;
-		emit ProposalSubmitted(address(this), address(proposal));
+		emit ProposalSubmitted(this, proposal);
 	}
 
 	/**
@@ -86,7 +86,7 @@ contract Idea is ERC20 {
 
 		// The new funds rate must not be recorded unless the proposal passed
 		if (nVotes * 100 / totalSupply() <= 50) {
-			emit ProposalRejected(address(this), address(proposal));
+			emit ProposalRejected(this, proposal);
 
 			return;
 		}
@@ -110,7 +110,7 @@ contract Idea is ERC20 {
 		}
 
 		fundedIdeas[toFund] = finalRate;
-		emit IdeaFunded(address(this), toFund, finalRate);
+		emit IdeaFunded(proposal, this, toFund, finalRate);
 	}
 
 	/**
@@ -149,7 +149,7 @@ contract Idea is ERC20 {
 			}
 		}
 
-		emit FundingDispersed(address(this), idea, rate);
+		emit FundingDispersed(this, idea, rate);
 	}
 
 	/**
