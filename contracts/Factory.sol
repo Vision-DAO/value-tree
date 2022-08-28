@@ -11,8 +11,15 @@ pragma solidity ^0.8.11;
 contract Factory {
 	Idea[] public registry;
 
+	/* A user created an instance of the factory */
+	event FactoryCreated();
+
 	/* A user created an instance of the Idea contract. */
-	event IdeaCreated(address registry, address idea);
+	event IdeaCreated(address idea);
+
+	constructor() {
+		emit FactoryCreated();
+	}
 
 	/**
 	 * Calls the constructor on the Idea contract with the specified arguments
@@ -23,7 +30,7 @@ contract Factory {
 		registry.push(created);
 
 		// Notify listeners, and transfer to msg.sender, because the registry is msg.sender
-		emit IdeaCreated(address(this), address(created));
+		emit IdeaCreated(address(created));
 		require(created.transfer(msg.sender, ideaShares), "Failed to allocate supply.");
 	}
 }
