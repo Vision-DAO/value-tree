@@ -17,6 +17,10 @@ contract Idea is ERC20 {
 	/* Ideas connected to the current idea */
 	address[] public children;
 
+	/* Proposals submitted to the DAO */
+	mapping (address => bool) public propSubmitted;
+	address[] public proposals;
+
 	/* The location of the idea on IPFS */
 	string public ipfsAddr;
 
@@ -24,13 +28,16 @@ contract Idea is ERC20 {
 	event IdeaRecorded(string ipfsAddr);
 
 	/* A child idea has had a new funds rate finalized. */
-	event IdeaFunded(address idea, FundingRate rate);
+	event IdeaFunded(address from, address to, FundingRate rate);
+
+	/* A proposal was submitted by a user */
+	event ProposalSubmitted(address governor, address prop);
 
 	/* A proposal failed to meet a 51% majority */
-	event ProposalRejected(address prop);
+	event ProposalRejected(address governor, address prop);
 
 	/* An instance of a child's funding has been released. */
-	event FundingDispersed(address idea, FundingRate rate);
+	event FundingDispersed(address from, address to, FundingRate rate);
 
 	// Ensures that the given address is a funded child idea
 	modifier isChild(address child) {
@@ -53,6 +60,18 @@ contract Idea is ERC20 {
 	}
 
 	/**
+	 * Register a proposal in the registry of current proposals for the DAO.
+	 */
+	function submitProp(Prop proposal) external {
+		require(address(proposal.governed()) == address(this), "Governor of proposal must be this idea");
+		require(!propSubmitted[address(proposal)], "Proposal has already been submitted");
+
+		proposals.push(address(proposal));
+		propSubmitted[address(proposal)] = true;
+		emit ProposalSubmitted(address(this), address(proposal));
+	}
+
+	/**
 	 * Finalizes the given proposition if it has past its expiry date.
 	 */
 	function finalizeProp(Prop proposal) external {
@@ -67,7 +86,7 @@ contract Idea is ERC20 {
 
 		// The new funds rate must not be recorded unless the proposal passed
 		if (nVotes * 100 / totalSupply() <= 50) {
-			emit ProposalRejected(address(proposal));
+			emit ProposalRejected(address(this), address(proposal));
 
 			return;
 		}
@@ -91,7 +110,7 @@ contract Idea is ERC20 {
 		}
 
 		fundedIdeas[toFund] = finalRate;
-		emit IdeaFunded(toFund, finalRate);
+		emit IdeaFunded(address(this), toFund, finalRate);
 	}
 
 	/**
@@ -130,7 +149,7 @@ contract Idea is ERC20 {
 			}
 		}
 
-		emit FundingDispersed(idea, rate);
+		emit FundingDispersed(address(this), idea, rate);
 	}
 
 	/**
