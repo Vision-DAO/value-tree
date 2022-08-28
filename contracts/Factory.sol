@@ -12,13 +12,13 @@ contract Factory {
 	Idea[] public registry;
 
 	/* A user created an instance of the factory */
-	event FactoryCreated();
+	event FactoryCreated(address registry);
 
 	/* A user created an instance of the Idea contract. */
-	event IdeaCreated(address idea);
+	event IdeaCreated(address registry, address idea);
 
 	constructor() {
-		emit FactoryCreated();
+		emit FactoryCreated(address(this));
 	}
 
 	/**
@@ -30,7 +30,7 @@ contract Factory {
 		registry.push(created);
 
 		// Notify listeners, and transfer to msg.sender, because the registry is msg.sender
-		emit IdeaCreated(address(created));
+		emit IdeaCreated(address(this), address(created));
 		require(created.transfer(msg.sender, ideaShares), "Failed to allocate supply.");
 	}
 }
