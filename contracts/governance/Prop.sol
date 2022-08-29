@@ -46,6 +46,9 @@ contract Prop {
 	/* A new proposal was created, the details of which are on IPFS */
 	event NewProposal(Prop prop, Idea governed, address toFund, string propIpfsHash, uint256 expiresAt);
 
+	/* A user voted on a new rate for the proposal */
+	event VoteCast(address voter, uint256 votes, FundingRate rate);
+
 	/**
 	 * Creates a new proposal, whose details should be on IPFS already, and that
 	 * expires at the indicated time.
@@ -92,7 +95,8 @@ contract Prop {
 			nVoters++;
 		}
 
-		refunds[msg.sender] = Vote(_rate, _votes);
+		refunds[msg.sender] = Vote(_rate, _votes + refunds[msg.sender].votes);
+		emit VoteCast(msg.sender, weight, _rate);
 	}
 
 	/**
