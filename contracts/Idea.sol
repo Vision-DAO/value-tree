@@ -25,19 +25,19 @@ contract Idea is ERC20 {
 	string public ipfsAddr;
 
 	/* The idea, and its datum have been committed to the blockchain. */
-	event IdeaRecorded(Idea idea, string ipfsAddr);
+	event IdeaRecorded(string ipfsAddr);
 
 	/* A child idea has had a new funds rate finalized. */
-	event IdeaFunded(Prop prop, Idea from, address to, FundingRate rate);
+	event IdeaFunded(Prop prop, address to, FundingRate rate);
 
 	/* A proposal was submitted by a user */
-	event ProposalSubmitted(Idea governor, Prop prop);
+	event ProposalSubmitted(Prop prop);
 
 	/* A proposal failed to meet a 51% majority */
-	event ProposalRejected(Idea governor, Prop prop);
+	event ProposalRejected(Prop prop);
 
 	/* An instance of a child's funding has been released. */
-	event FundingDispersed(Idea from, address to, FundingRate rate);
+	event FundingDispersed(address to, FundingRate rate);
 
 	// Ensures that the given address is a funded child idea
 	modifier isChild(address child) {
@@ -56,7 +56,7 @@ contract Idea is ERC20 {
 		_mint(msg.sender, ideaShares);
 		ipfsAddr = datumIpfsHash;
 
-		emit IdeaRecorded(this, datumIpfsHash);
+		emit IdeaRecorded(datumIpfsHash);
 	}
 
 	/**
@@ -68,7 +68,7 @@ contract Idea is ERC20 {
 
 		proposals.push(address(proposal));
 		propSubmitted[address(proposal)] = true;
-		emit ProposalSubmitted(this, proposal);
+		emit ProposalSubmitted(proposal);
 	}
 
 	/**
@@ -86,7 +86,7 @@ contract Idea is ERC20 {
 
 		// The new funds rate must not be recorded unless the proposal passed
 		if (nVotes * 100 / totalSupply() <= 50) {
-			emit ProposalRejected(this, proposal);
+			emit ProposalRejected(proposal);
 
 			return;
 		}
@@ -110,7 +110,7 @@ contract Idea is ERC20 {
 		}
 
 		fundedIdeas[toFund] = finalRate;
-		emit IdeaFunded(proposal, this, toFund, finalRate);
+		emit IdeaFunded(proposal, toFund, finalRate);
 	}
 
 	/**
@@ -149,7 +149,7 @@ contract Idea is ERC20 {
 			}
 		}
 
-		emit FundingDispersed(this, idea, rate);
+		emit FundingDispersed(idea, rate);
 	}
 
 	/**
