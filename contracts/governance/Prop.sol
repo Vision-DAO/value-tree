@@ -5,12 +5,17 @@ import "./Funding.sol";
 
 pragma solidity ^0.8.11;
 
+enum VoteKind {
+	For,
+	Against
+}
+
 /**
  * Details of individual votes must be stored to allow "undo" functionality.
  */
 struct Vote {
-	FundingRate rate;
 	uint256 votes;
+	VoteKind kind;
 }
 
 /**
@@ -24,16 +29,18 @@ contract Prop {
 	/* The idea being funded by the prop */
 	address public toFund;
 
-	/* The weighted average rate so far */
-	FundingRate public rate;
+	/* The funding rate being voted on */
+	FundingRate internal rate;
 
 	/* Users that voted on the proposal - should receive a refund after */
 	mapping (address => Vote) public refunds;
 
 	/* Where metadata about the proposal is stored */
 	string public ipfsAddr;
-
 	uint256 public nVoters;
+
+	uint256 public votesFor;
+	uint256 public votesAgainst;
 
 	/* The title of the proposal */
 	string public title;
@@ -47,7 +54,12 @@ contract Prop {
 	event NewProposal(Prop prop, Idea governed, address toFund, string propIpfsHash, uint256 expiresAt);
 
 	/* A user voted on a new rate for the proposal */
-	event VoteCast(address voter, uint256 votes, FundingRate rate);
+	event VoteCast(address voter, uint256 votes, VoteKind kind);
+
+	modifier isActive {
+		require(block.timestamp < expiresAt, "Voting on proposal has closed.");
+		_;
+	}
 
 	/**
 	 * Creates a new proposal, whose details should be on IPFS already, and that
@@ -60,14 +72,14 @@ contract Prop {
 	 * @param _fundingType - How the reward should be fundraised (i.e., minting or from the treasury)
 	 * @param _proposalIpfsHash - The details of the proposal, in any form, available
 	 * on IPFS
-	 * @param _expiry - The number of seconds that the vote can last for
+	 * @param _voteExpiry - The number of seconds that the vote can last for
 	 */
-	constructor(string memory _propName, Idea _jurisdiction, address _toFund, address _token, FundingType _fundingType, string memory _proposalIpfsHash, uint256 _expiry) {
+	constructor(string memory _propName, Idea _jurisdiction, address _toFund, address _token, FundingType _fundingType, uint256 _fundingAmount, uint256 _fundingFrequency, uint256 _fundingExpiry, string memory _proposalIpfsHash, uint256 _voteExpiry) {
 		title = _propName;
 		governed = _jurisdiction;
 		toFund = _toFund;
-		rate = FundingRate(_token, 0, 0, 0, 0, _fundingType);
-		expiresAt = block.timestamp + _expiry * 1 seconds;
+		rate = FundingRate(_token, _fundingAmount, _fundingFrequency, _fundingExpiry, 0, _fundingType);
+		expiresAt = block.timestamp + _fundingExpiry * 1 seconds;
 		ipfsAddr = _proposalIpfsHash;
 
 		emit NewProposal(this, _jurisdiction, _toFund, _proposalIpfsHash, expiresAt);
@@ -77,16 +89,18 @@ contract Prop {
 	 * Delegates the specified number of votes (tokens) to this proposal with
 	 * the given vote details.
 	 */
-	function vote(uint256 _votes, FundingRate calldata _rate) external {
+	function vote(uint256 _votes, VoteKind _kind) external isActive {
 		require(_votes > 0, "No votes to delegate");
 		require(governed.transferFrom(msg.sender, address(this), _votes), "Failed to delegate votes");
 
 		// Votes have to be weighted by their balance of the governing token
 		uint256 weight = _votes;
 
-		rate.value += weight * _rate.value;
-		rate.intervalLength += weight * _rate.intervalLength;
-		rate.expiry += weight * _rate.expiry;
+		if (_kind == VoteKind.For) {
+			votesFor += weight;
+		} else {
+			votesAgainst += weight;
+		}
 
 		// Voters should be able to get their tokens back after the vote is over
 		// Register the voter for a refund when the proposal expires
@@ -95,26 +109,27 @@ contract Prop {
 			nVoters++;
 		}
 
-		refunds[msg.sender] = Vote(_rate, _votes + refunds[msg.sender].votes);
-		emit VoteCast(msg.sender, weight, _rate);
+		refunds[msg.sender] = Vote(_votes + refunds[msg.sender].votes, _kind);
+		emit VoteCast(msg.sender, weight, _kind);
 	}
 
 	/**
 	 * Deallocates all votes from the user.
 	 */
-	function refundVotes() external {
+	function refundVotes() external isActive {
 		require(refunds[msg.sender].votes > 0, "No votes left to refund.");
 
 		uint256 w = refunds[msg.sender].votes;
-		FundingRate memory r = refunds[msg.sender].rate;
 
 		// Refund the user
 		require(governed.transfer(msg.sender, w), "Failed to refund votes");
 
 		// Subtract their weighted votes from the total
-		rate.value -= w * r.value;
-		rate.intervalLength -= w * r.intervalLength;
-		rate.expiry -= w * r.expiry;
+		if (refunds[msg.sender].kind == VoteKind.For) {
+			votesFor -= w;
+		} else {
+			votesAgainst -= w;
+		}
 
 		// Remove the user's refund entry
 		delete refunds[msg.sender];
@@ -151,19 +166,9 @@ contract Prop {
 	}
 
 	/**
-	 * Calculates the weighted average of the funds rate varaibles, returning
-	 * the resultant funds rate, without an updated finalization date.
+	 * Gets the current funding rate used by the proposal.
 	 */
-	function finalFundsRate() view external returns (FundingRate memory) {
-		// The total number of votes is the total number of tokens delegated to this account
-		uint256 totalVotes = governed.balanceOf(address(this));
-
-		FundingRate memory finalRate = rate;
-
-		finalRate.value /= totalVotes;
-		finalRate.intervalLength /= totalVotes;
-		finalRate.expiry /= totalVotes;
-
-		return finalRate;
+	function finalFundsRate() external returns (FundingRate memory) {
+		return rate;
 	}
 }

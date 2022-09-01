@@ -13,6 +13,5 @@ module.exports = async function (deployer) {
 
 	// Register the new DAO as a DAO under the registry
 	await registry.createIdea(ROOT_IDEA.name, ROOT_IDEA.ticker, ROOT_IDEA.shares, ROOT_IDEA.detailsIpfsID);
-
 	await deployer.deploy(Prop, ...ROOT_IDEA.propArgs);
 };
