@@ -79,7 +79,7 @@ contract Prop {
 		governed = _jurisdiction;
 		toFund = _toFund;
 		rate = FundingRate(_token, _fundingAmount, _fundingFrequency, _fundingExpiry, 0, _fundingType);
-		expiresAt = block.timestamp + _fundingExpiry * 1 seconds;
+		expiresAt = block.timestamp + _voteExpiry * 1 seconds;
 		ipfsAddr = _proposalIpfsHash;
 
 		emit NewProposal(this, _jurisdiction, _toFund, _proposalIpfsHash, expiresAt);
@@ -168,7 +168,7 @@ contract Prop {
 	/**
 	 * Gets the current funding rate used by the proposal.
 	 */
-	function finalFundsRate() external returns (FundingRate memory) {
+	function finalFundsRate() external view returns (FundingRate memory) {
 		return rate;
 	}
 }

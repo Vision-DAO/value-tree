@@ -54,7 +54,7 @@ module.exports = {
 			network_id: "*",       // Any network (default: none)
 		},
 		matic: {
-			provider: () => new HDWalletProvider(mnemonic, "https://matic-mumbai.chainstacklabs.com"),
+			provider: () => new HDWalletProvider(mnemonic, "https://nd-333-212-679.p2pify.com/b3780ceca4a0bb12fd62cbecd480efef"),
 			network_id: 80001,
 			confirmations: 2,
 			timeoutBlocks: 200,
