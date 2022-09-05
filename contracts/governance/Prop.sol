@@ -79,7 +79,7 @@ contract Prop {
 		governed = _jurisdiction;
 		toFund = _toFund;
 		rate = FundingRate(_token, _fundingAmount, _fundingFrequency, _fundingExpiry, 0, _fundingType);
-		expiresAt = block.timestamp + _voteExpiry * 1 seconds;
+		expiresAt = _voteExpiry;
 		ipfsAddr = _proposalIpfsHash;
 
 		emit NewProposal(this, _jurisdiction, _toFund, _proposalIpfsHash, expiresAt);
