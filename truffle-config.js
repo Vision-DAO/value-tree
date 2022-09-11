@@ -54,12 +54,13 @@ module.exports = {
 			network_id: "*",       // Any network (default: none)
 		},
 		matic: {
-			provider: () => new HDWalletProvider(mnemonic, "https://nd-333-212-679.p2pify.com/b3780ceca4a0bb12fd62cbecd480efef"),
+			provider: () => new HDWalletProvider(mnemonic, "wss://ws-nd-333-212-679.p2pify.com/b3780ceca4a0bb12fd62cbecd480efef"),
 			network_id: 80001,
 			confirmations: 2,
 			timeoutBlocks: 200,
 			skipDryRun: true,
 			gasPrice: 40000000000,
+            networkCheckTimeout: 10000,
 		},
 		// Another network with more advanced options...
 		// advanced: {
