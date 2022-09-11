@@ -10,8 +10,8 @@ module.exports = {
 
 	// Hard-coded address of the details of this idea on IPFS (an HTML file)
 	// containing an overview of the concept (static/index.html)
-	detailsIpfsID: "QmWd94nKbgZHn9CjvDCmSJfUXFdcvScfC87xVGP6Lc7DzG",
+	detailsIpfsID: "QmVzRraiBep2wzVYUKdLTPhDCdfSAPtU8VgKTgTQAxTX6v",
 
-	propArgs: ["Test proposal", "0x928613da9dE038458c29fe34066fbbDe74A2DB9f", "0x928613da9dE038458c29fe34066fbbDe74A2DB9f", "0x928613da9dE038458c29fe34066fbbDe74A2DB9f", 1, 0, 0, 0, "QmWd94nKbgZHn9CjvDCmSJfUXFdcvScfC87xVGP6Lc7DzG", 1],
+	propArgs: ["Test proposal", "0x928613da9dE038458c29fe34066fbbDe74A2DB9f", "0x928613da9dE038458c29fe34066fbbDe74A2DB9f", "0x928613da9dE038458c29fe34066fbbDe74A2DB9f", 1, 0, 0, 0, "QmVzRraiBep2wzVYUKdLTPhDCdfSAPtU8VgKTgTQAxTX6v", 1],
 };
 
