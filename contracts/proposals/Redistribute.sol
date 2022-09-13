@@ -12,16 +12,15 @@ pragma solidity ^0.8.11;
 contract Redistribute {
 	/* To split between */
 	address[] public beneficiaries;
-	address token;
 
-	constructor(address token, string[] memory _beneficiaries) {
+	constructor(string[] memory _beneficiaries) {
 		this.beneficiaries = _beneficiaries;
 	}
 
 	/**
 	 * Distributes the accumulated funds among the users.
 	 */
-	function releaseFunds() external {
+	function releaseFunds(address token) external {
 		IERC20 tokenContract = IERC20 (token);
 		uint256 toDistribute = 1 / beneficiaries.length * tokenContract.balanceOf(address(this));
 
