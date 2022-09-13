@@ -91,20 +91,17 @@ contract Idea is ERC20 {
 		address toFund = proposal.toFund();
 		FundingRate memory rate = proposal.finalFundsRate();
 
-		// Add the funded idea to the list of children if it hasn't been seen before, and
-		// remove the child once its funding is nonexistent
-		if (fundedIdeas[toFund].value == 0) {
-			children.push(toFund);
-		} else if (rate.value == 0) {
-			for (uint256 i = 0; i < children.length; i++) {
-				if (children[i] == toFund) {
-					children[i] = children[children.length - 1];
-					children.pop();
+		for (uint256 i = 0; i < children.length; i++) {
+			if (children[i] == toFund) {
+				children[i] = children[children.length - 1];
+				children.pop();
 
-					break;
-				}
+				break;
 			}
 		}
+
+		fundedIdeas[toFund].value = 0;
+		children.push(toFund);
 
 		fundedIdeas[toFund] = rate;
 		emit IdeaFunded(proposal, toFund, rate);
@@ -116,11 +113,6 @@ contract Idea is ERC20 {
 	 */
 	function disperseFunding(address idea) external isChild(idea) {
 		FundingRate memory rate = fundedIdeas[idea];
-
-		require(rate.expiry > block.timestamp, "Funding has expired");
-		require(block.timestamp - rate.lastClaimed >= rate.intervalLength, "Claimed too recently");
-
-		fundedIdeas[idea].lastClaimed = block.timestamp;
 
 		// The number of tokens to disperse
 		uint256 tokens = rate.value;

@@ -74,11 +74,11 @@ contract Prop {
 	 * on IPFS
 	 * @param _voteExpiry - The number of seconds that the vote can last for
 	 */
-	constructor(string memory _propName, Idea _jurisdiction, address _toFund, address _token, FundingType _fundingType, uint256 _fundingAmount, uint256 _fundingFrequency, uint256 _fundingExpiry, string memory _proposalIpfsHash, uint256 _voteExpiry) {
+	constructor(string memory _propName, Idea _jurisdiction, address _toFund, address _token, FundingType _fundingType, uint256 _fundingAmount, string memory _proposalIpfsHash, uint256 _voteExpiry) {
 		title = _propName;
 		governed = _jurisdiction;
 		toFund = _toFund;
-		rate = FundingRate(_token, _fundingAmount, _fundingFrequency, _fundingExpiry, 0, _fundingType);
+		rate = FundingRate(_token, _fundingAmount, _fundingType);
 		expiresAt = _voteExpiry;
 		ipfsAddr = _proposalIpfsHash;
 
@@ -90,27 +90,36 @@ contract Prop {
 	 * the given vote details.
 	 */
 	function vote(uint256 _votes, VoteKind _kind) external isActive {
-		require(_votes > 0, "No votes to delegate");
-		require(governed.transferFrom(msg.sender, address(this), _votes), "Failed to delegate votes");
+		require(refunds[msg.sender].votes >= _votes || governed.transferFrom(msg.sender, address(this), _votes - refunds[msg.sender].votes), "Failed to delegate votes");
 
-		// Votes have to be weighted by their balance of the governing token
-		uint256 weight = _votes;
+		// De-register old votes, and add the user as a voter
+		if (refunds[msg.sender].votes > 0) {
+			if (refunds[msg.sender].votes > _votes) {
+				// Replace the user's old vote by returning their tokens
+				uint256 diffRefund = refunds[msg.sender].votes - _votes;
 
-		if (_kind == VoteKind.For) {
-			votesFor += weight;
-		} else {
-			votesAgainst += weight;
-		}
+				require(governed.transfer(msg.sender, diffRefund), "Failed to refund freed votes");
+			}
 
-		// Voters should be able to get their tokens back after the vote is over
-		// Register the voter for a refund when the proposal expires
-		if (refunds[msg.sender].votes == 0) {
+			if (refunds[msg.sender].kind == VoteKind.For) {
+				votesFor -= refunds[msg.sender].votes;
+			} else {
+				votesAgainst -= refunds[msg.sender].votes;
+			}
+		} else if (_votes > 0) {
 			voters.push(msg.sender);
 			nVoters++;
 		}
 
-		refunds[msg.sender] = Vote(_votes + refunds[msg.sender].votes, _kind);
-		emit VoteCast(msg.sender, weight, _kind);
+		// Votes have to be weighted by their balance of the governing token
+		if (_kind == VoteKind.For) {
+			votesFor += _votes;
+		} else {
+			votesAgainst += _votes;
+		}
+
+		refunds[msg.sender] = Vote(_votes, _kind);
+		emit VoteCast(msg.sender, _votes, _kind);
 	}
 
 	/**

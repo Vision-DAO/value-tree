@@ -16,15 +16,6 @@ struct FundingRate {
 	/* The number of tokens to be allocated in total */
 	uint256 value;
 
-	/* How often the allocated funds can be claimed (e.g., every 24 hours) */
-	uint256 intervalLength;
-
-	/* When the funding expires */
-	uint256 expiry;
-
-	/* Timestamp at which the funds were claimed */
-	uint256 lastClaimed;
-
 	/* The manner by which the funding is executed */
 	FundingType kind;
 }
