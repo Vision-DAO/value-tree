@@ -16,6 +16,9 @@ struct FundingRate {
 	/* The number of tokens to be allocated in total */
 	uint256 value;
 
+	/* Whether the funds have been spent or not */
+	bool spent;
+
 	/* The manner by which the funding is executed */
 	FundingType kind;
 }

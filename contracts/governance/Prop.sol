@@ -78,7 +78,7 @@ contract Prop {
 		title = _propName;
 		governed = _jurisdiction;
 		toFund = _toFund;
-		rate = FundingRate(_token, _fundingAmount, _fundingType);
+		rate = FundingRate(_token, _fundingAmount, false, _fundingType);
 		expiresAt = _voteExpiry;
 		ipfsAddr = _proposalIpfsHash;
 

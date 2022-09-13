@@ -112,7 +112,9 @@ contract Idea is ERC20 {
 	 * jurisdiction of the current token, and has funds to be allocated.
 	 */
 	function disperseFunding(address idea) external isChild(idea) {
-		FundingRate memory rate = fundedIdeas[idea];
+		FundingRate storage rate = fundedIdeas[idea];
+
+		require(!rate.spent, "Funding already spent");
 
 		// The number of tokens to disperse
 		uint256 tokens = rate.value;
@@ -137,6 +139,8 @@ contract Idea is ERC20 {
 				require(IERC20 (rate.token).transfer(idea, tokens), "Failed to disperse ERC rewards");
 			}
 		}
+
+		rate.spent = true;
 
 		emit FundingDispersed(idea, rate);
 	}
