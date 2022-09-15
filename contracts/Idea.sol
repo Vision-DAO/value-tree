@@ -81,7 +81,7 @@ contract Idea is ERC20 {
 		require(proposal.refundAll(), "Failed to refund all voters");
 
 		// The new funds rate must not be recorded unless the proposal passed
-		if (proposal.votesFor() * 100 / totalSupply() <= 50) {
+		if (proposal.votesFor() <= totalSupply() / 2) {
 			emit ProposalRejected(proposal);
 
 			return;
