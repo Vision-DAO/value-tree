@@ -62,9 +62,10 @@ contract Idea is ERC20 {
 	/**
 	 * Register a proposal in the registry of current proposals for the DAO.
 	 */
-	function submitProp(Prop proposal) external {
-		require(address(proposal.governed()) == address(this), "Governor of proposal must be this idea");
-		require(!propSubmitted[address(proposal)], "Proposal has already been submitted");
+	function submitProp(string memory _propName, Idea _jurisdiction, address _toFund, address _token, FundingType _fundingType, uint256 _fundingAmount, string memory _proposalIpfsHash, uint256 _voteExpiry) external {
+		require(address(_jurisdiction) == address(this), "Governor of proposal must be this idea");
+
+		Prop proposal = new Prop(_propName, _jurisdiction, _toFund, _token, _fundingType, _fundingAmount, _proposalIpfsHash, _voteExpiry);
 
 		proposals.push(address(proposal));
 		propSubmitted[address(proposal)] = true;

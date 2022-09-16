@@ -25,12 +25,14 @@ contract Factory {
 	 * Calls the constructor on the Idea contract with the specified arguments
 	 * and registers it in the registry.
 	 */
-	function createIdea(string memory ideaName, string memory ideaTicker, uint256 ideaShares, string memory datumIpfsHash) external {
+	function createIdea(string memory ideaName, string memory ideaTicker, uint256 ideaShares, string memory datumIpfsHash) external returns (address) {
 		Idea created = new Idea(ideaName, ideaTicker, ideaShares, datumIpfsHash);
 		registry.push(created);
 
 		// Notify listeners, and transfer to msg.sender, because the registry is msg.sender
 		emit IdeaCreated(address(created));
 		require(created.transfer(msg.sender, ideaShares), "Failed to allocate supply.");
+
+		return address(created);
 	}
 }
