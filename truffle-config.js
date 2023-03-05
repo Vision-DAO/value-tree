@@ -29,6 +29,7 @@ module.exports = {
 	// TODO: Support a single env file that includes both secrets
 	api_keys: {
 		polygonscan: fs.readFileSync(".polysecret").toString().trim(),
+		nova_arbiscan: fs.readFileSync(".arbisecret").toString().trim(),
 	},
 
 	/**
@@ -60,7 +61,13 @@ module.exports = {
 			timeoutBlocks: 200,
 			skipDryRun: true,
 			gasPrice: 40000000000,
-            networkCheckTimeout: 10000,
+			networkCheckTimeout: 10000,
+		},
+		nova: {
+			provider: () => new HDWalletProvider(mnemonic, "https://nova.arbitrum.io/rpc"),
+			network_id: 42170,
+			confirmations: 2,
+			gasPrice: 10000000,
 		},
 		// Another network with more advanced options...
 		// advanced: {
