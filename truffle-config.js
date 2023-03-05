@@ -69,6 +69,17 @@ module.exports = {
 			confirmations: 2,
 			gasPrice: 10000000,
 		},
+		arbitrum: {
+			provider: () => new HDWalletProvider({mnemonic: { phrase: mnemonic },
+                                                  providerOrUrl: "https://arb1.arbitrum.io/rpc",
+                                                  pollingInterval: 80000}),
+			network_id: 42161,
+			confirmations: 2,
+			gasPrice: 10000000,
+            gas: 800000,
+			networkCheckTimeout: 10000,
+            deploymentPollingInterval: 80000,
+		},
 		// Another network with more advanced options...
 		// advanced: {
 		// port: 8777,             // Custom port
