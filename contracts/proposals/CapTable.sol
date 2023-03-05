@@ -22,14 +22,14 @@ contract CapTable {
 		beneficiaries[6] = 0xCf457e101EF999C95c6563A494241D9C0aD8763B;
 		beneficiaries[7] = 0xcFdDa7a46853EeEdA37C4C61f52f93a9D7cb2F24;
 
-		shares[0] = 33_000_000;
-		shares[1] = 23_999_987;
-		shares[2] = 9_000_000;
-		shares[3] = 7_250_000;
-		shares[4] = 7_250_000;
-		shares[5] = 6_500_000;
-		shares[6] = 6_500_000;
-		shares[7] = 5_000_000;
+		shares[0] = 16_500_000;
+		shares[1] = 11_999_987;
+		shares[2] = 4_500_000;
+		shares[3] = 3_625_000;
+		shares[4] = 3_625_000;
+		shares[5] = 3_250_000;
+		shares[6] = 3_250_000;
+		shares[7] = 2_500_000;
 	}
 
 	/**
